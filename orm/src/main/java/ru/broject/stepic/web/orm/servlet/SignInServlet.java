@@ -1,0 +1,47 @@
+package ru.broject.stepic.web.orm.servlet;
+
+import ru.broject.stepic.web.orm.model.UserProfile;
+import ru.broject.stepic.web.orm.service.UserService;
+import ru.broject.stepic.web.orm.service.UserServiceImpl;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * Created by vyacheslav.svininyh on 18.01.2016.
+ */
+public class SignInServlet extends HttpServlet {
+
+    private final UserService userService;
+
+    public SignInServlet() {
+        this.userService = UserServiceImpl.getInstance();
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String login = request.getParameter("login");
+        String password = request.getParameter("password");
+
+        if (login == null || password == null) {
+            response.setContentType("text/html;charset=utf-8");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        UserProfile userProfile = userService.getUser(login);
+        if (userProfile == null || !userProfile.getPass().equals(password)) {
+            response.setContentType("text/html;charset=utf-8");
+            response.getWriter().println("Unauthorized");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        response.setContentType("text/html;charset=utf-8");
+        response.getWriter().println("Authorized");
+        response.setStatus(HttpServletResponse.SC_OK);
+    }
+}
